@@ -48,10 +48,10 @@ node default {
     ensure => present
   }
 
-  file { 'motd':
-    ensure  => file,
-    path    => '/etc/motd',
-    owner   => 'robertnovak',
-    content => 'learned the basics of resource management in puppet'
+  exec { 'create_motd':
+    command => 'cowsay "welcome to ${::fqdn}!" >/etc/motd',
+    creates => '/etc/motd',
+    path    => ['/usr/local/bin']
   }
+
 }
