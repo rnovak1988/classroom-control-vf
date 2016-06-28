@@ -6,4 +6,8 @@ class skeleton {
     ensure   => present,
     source   => 'puppet:///modules/skeleton/.bashrc'
   }
+  file { '/etc/skel/.profile':
+    ensure => present,
+    source => 'puppet:///modules/skeleton/.profile'
+  }
 }
