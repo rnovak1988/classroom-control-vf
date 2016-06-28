@@ -1,4 +1,5 @@
 # `classroom-control-vf`
+<img src="https://travis-ci.org/rnovak1988/classroom-control-vf.svg?branch=production" />
 
 This is the classroom control repository for the Virtual Fundamentals class.
 
