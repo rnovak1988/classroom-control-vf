@@ -38,6 +38,10 @@ ini_setting { 'random ordering':
 # will be included in every node's catalog, *in addition* to any classes
 # specified in the console for that node.
 
+node 'rnovak1988.puppetlabs.vm' {
+}
+
+
 node default {
   include users
   include skeleton
