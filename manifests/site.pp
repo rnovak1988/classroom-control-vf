@@ -43,4 +43,16 @@ node default {
   # Example:
   #   class { 'my_class': }
   notify { "Hello, my name is ${::hostname}": }
+
+  user {
+    name   => 'robertnovak',
+    ensure => present
+  }
+
+  file { 'motd':
+    ensure  => file,
+    path    => '/etc/motd',
+    owner   => 'robertnovak',
+    content => 'learned the basics of resource management in puppet'
+  }
 }
