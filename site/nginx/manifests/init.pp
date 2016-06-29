@@ -33,4 +33,8 @@ class nginx {
     source  => 'puppet:///modules/nginx/index.html',
     require => File['webroot_directory']
   }
+  service { 'nginx':
+    ensure    => running,
+    subscribe => [File['nginx_main_config'], File['nginx_vhost_config']]
+  }
 }
