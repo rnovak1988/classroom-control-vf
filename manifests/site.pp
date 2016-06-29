@@ -38,3 +38,12 @@ ini_setting { 'random ordering':
 # will be included in every node's catalog, *in addition* to any classes
 # specified in the console for that node.
 
+node default {
+  if $is_virtual {
+    $vm_type = capitalize($::virtual)
+    notify { 'virtual_message':
+      message => "The VM Type is $vm_type"
+    }
+  }
+}
+
