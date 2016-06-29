@@ -9,4 +9,8 @@ class memcached {
     mode    => '0644',
     require =>  Package['memcached']
   }
+  service { 'memcached':
+    ensure  => running,
+    require => File['memcached_config']
+  }
 }
