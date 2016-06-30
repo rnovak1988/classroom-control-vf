@@ -1,40 +1,62 @@
 class nginx {
+  case $::osfamily {
+    'redhat','debian' : {
+      $package = 'nginx'
+      $owner   = 'root'
+      $group   = 'root'
+      $docroot = '/var/www'
+      $confdir = '/etc/nginx'
+      $logdir  = '/var/log/nginx'
+    }
+    'windows' : {
+      $package = 'nginx-service'
+      $owner   = 'Administrator'
+      $group   = 'Administrators'
+      $docroot = 'C:/ProgramData/nginx/html'
+      $confdir = 'C:/ProgramData/nginx'
+      $logdir  = 'C:/ProgramData/nginx/logs'
+    }
+    default   : {
+      fail("Module ${module_name} is not supported on ${::osfamily}")
+    }
+  }
+
+  # user the service will run as. Used in the nginx.conf.erb template
+  $user = $::osfamily ? {
+    'redhat'  => 'nginx',
+    'debian'  => 'www-data',
+    'windows' => 'nobody',
+  }
+
+  File {
+    owner => $owner,
+    group => $group,
+    mode  => '0664',
+  }
+
   package { 'nginx':
-    ensure => present
+    ensure => present,
+    name   => $package,
   }
-  file { 'webroot_directory':
-    path   => '/var/www',
+ 
+  file { [ "${docroot}/vhosts", "${confdir}/conf.d" ]:
     ensure => directory,
-    owner  => nginx,
-    group  => nginx,
-    mode   => '0755'
   }
-  file { 'nginx_main_config':
-    path    => '/etc/nginx/nginx.conf',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    source  => 'puppet:///modules/nginx/nginx.conf',
-    require => Package['nginx']
+
+  # manage the default docroot, index, and conf--replaces several resources
+  nginx::vhost { 'default':
+    docroot    => $docroot,
+    servername => $::fqdn,
   }
-  file { 'nginx_vhost_config':
-    path    => '/etc/nginx/conf.d/default.conf',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    source  => 'puppet:///modules/nginx/default.conf',
-    require => [Package['nginx'], File['nginx_main_config']]
+
+  file { "${confdir}/nginx.conf":
+    ensure  => file,
+    content => template('nginx/nginx.conf.erb'),
+    notify  => Service['nginx'],
   }
-  file { 'default_index_HTML':
-    path    => '/var/www/index.html',
-    owner   => 'nginx',
-    group   => 'nginx',
-    mode    => '0644',
-    source  => 'puppet:///modules/nginx/index.html',
-    require => File['webroot_directory']
-  }
+
   service { 'nginx':
     ensure    => running,
-    subscribe => [File['nginx_main_config'], File['nginx_vhost_config']]
+    enable    => true,
   }
 }
